@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: usuario
+      changes:
+        - sql: |
+            SELECT e.first_name, e.last_name, d.name as department
+            FROM employees e
+            JOIN departments d ON e.department_id = d.id;

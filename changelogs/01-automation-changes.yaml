@@ -116,37 +116,37 @@ databaseChangeLog:
                   name: department_id
                   value: 1
 
-#   - changeSet:
-#       id: 4
-#       author: cristian
-#       comment: "Agregar columnas adicionales a empleados"
-#       changes:
-#         - addColumn:
-#             tableName: employees
-#             columns:
-#               - column:
-#                   name: phone
-#                   type: varchar(20)
-#               - column:
-#                   name: status
-#                   type: varchar(20)
-#                   defaultValue: "ACTIVE"
-#               - column:
-#                   name: manager_id
-#                   type: int
-#                   constraints:
-#                     foreignKeyName: fk_emp_manager
-#                     references: employees(id)
+  - changeSet:
+      id: 4
+      author: cristian
+      comment: "Agregar columnas adicionales a empleados"
+      changes:
+        - addColumn:
+            tableName: employees
+            columns:
+              - column:
+                  name: phone
+                  type: varchar(20)
+              - column:
+                  name: status
+                  type: varchar(20)
+                  defaultValue: "ACTIVE"
+              - column:
+                  name: manager_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_emp_manager
+                    references: employees(id)
 
-#   - changeSet:
-#       id: 5
-#       author: cristian
-#       comment: "Modificar tipo de columna phone"
-#       changes:
-#         - modifyDataType:
-#             tableName: employees
-#             columnName: phone
-#             newDataType: varchar(30)
+  - changeSet:
+      id: 5
+      author: cristian
+      comment: "Modificar tipo de columna phone"
+      changes:
+        - modifyDataType:
+            tableName: employees
+            columnName: phone
+            newDataType: varchar(30)
 
   - changeSet:
       id: 6
