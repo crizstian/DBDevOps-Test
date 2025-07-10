@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 1
-      author: tutorial
+      author: cristian
       comment: "Crear tabla departamentos desde archivo SQL"
       changes:
         - sqlFile:
@@ -10,7 +10,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 2
-      author: tutorial
+      author: cristian
       comment: "Crear tabla empleados"
       changes:
         - createTable:
@@ -58,7 +58,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 3
-      author: tutorial
+      author: cristian
       comment: "Insertar empleados iniciales"
       changes:
         - insert:
@@ -116,81 +116,81 @@ databaseChangeLog:
                   name: department_id
                   value: 1
 
-  - changeSet:
-      id: 4
-      author: tutorial
-      comment: "Agregar columnas adicionales a empleados"
-      changes:
-        - addColumn:
-            tableName: employees
-            columns:
-              - column:
-                  name: phone
-                  type: varchar(20)
-              - column:
-                  name: status
-                  type: varchar(20)
-                  defaultValue: "ACTIVE"
-              - column:
-                  name: manager_id
-                  type: int
-                  constraints:
-                    foreignKeyName: fk_emp_manager
-                    references: employees(id)
+#   - changeSet:
+#       id: 4
+#       author: cristian
+#       comment: "Agregar columnas adicionales a empleados"
+#       changes:
+#         - addColumn:
+#             tableName: employees
+#             columns:
+#               - column:
+#                   name: phone
+#                   type: varchar(20)
+#               - column:
+#                   name: status
+#                   type: varchar(20)
+#                   defaultValue: "ACTIVE"
+#               - column:
+#                   name: manager_id
+#                   type: int
+#                   constraints:
+#                     foreignKeyName: fk_emp_manager
+#                     references: employees(id)
 
-  - changeSet:
-      id: 5
-      author: tutorial
-      comment: "Modificar tipo de columna phone"
-      changes:
-        - modifyDataType:
-            tableName: employees
-            columnName: phone
-            newDataType: varchar(30)
+#   - changeSet:
+#       id: 5
+#       author: cristian
+#       comment: "Modificar tipo de columna phone"
+#       changes:
+#         - modifyDataType:
+#             tableName: employees
+#             columnName: phone
+#             newDataType: varchar(30)
 
-  - changeSet:
-      id: 6
-      author: tutorial
-      comment: "Crear tabla de proyectos"
-      changes:
-        - createTable:
-            tableName: projects
-            columns:
-              - column:
-                  name: id
-                  type: int
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: name
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: description
-                  type: text
-              - column:
-                  name: start_date
-                  type: date
-              - column:
-                  name: end_date
-                  type: date
-              - column:
-                  name: budget
-                  type: decimal(15,2)
-              - column:
-                  name: department_id
-                  type: int
-                  constraints:
-                    nullable: false
-                    foreignKeyName: fk_proj_dept
-                    references: departments(id)
+#   - changeSet:
+#       id: 6
+#       author: cristian
+#       comment: "Crear tabla de proyectos"
+#       changes:
+#         - createTable:
+#             tableName: projects
+#             columns:
+#               - column:
+#                   name: id
+#                   type: int
+#                   autoIncrement: true
+#                   constraints:
+#                     primaryKey: true
+#                     nullable: false
+#               - column:
+#                   name: name
+#                   type: varchar(100)
+#                   constraints:
+#                     nullable: false
+#               - column:
+#                   name: description
+#                   type: text
+#               - column:
+#                   name: start_date
+#                   type: date
+#               - column:
+#                   name: end_date
+#                   type: date
+#               - column:
+#                   name: budget
+#                   type: decimal(15,2)
+#               - column:
+#                   name: department_id
+#                   type: int
+#                   constraints:
+#                     nullable: false
+#                     foreignKeyName: fk_proj_dept
+#                     references: departments(id)
 
   - changeSet:
       id: 7
-      author: tutorial
+      author: cristian
       comment: "Crear tabla de asignaciones empleado-proyecto"
       changes:
         - createTable:
@@ -224,7 +224,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 8
-      author: tutorial
+      author: cristian
       comment: "Insertar datos de proyectos"
       changes:
         - insert:
