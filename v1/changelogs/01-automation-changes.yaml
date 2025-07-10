@@ -1,0 +1,635 @@
+databaseChangeLog:
+  # =============================================================================
+  # CATEGORÍA 1: AUTOMATIZACIÓN DE CAMBIOS
+  # Objetivo: Demostrar operaciones de alta, modificación e inserción
+  # =============================================================================
+
+  # Changeset 1: Crear tabla de departamentos
+  - changeSet:
+      id: create-departments-table
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,create,departments
+      comment: "Crear tabla de departamentos para el tutorial"
+      changes:
+        - createTable:
+            tableName: departments
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: budget
+                  type: DECIMAL(15,2)
+                  defaultValue: 0.00
+              - column:
+                  name: manager_id
+                  type: INTEGER
+              - column:
+                  name: location
+                  type: VARCHAR(100)
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValue: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValue: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValue: CURRENT_TIMESTAMP
+        - addUniqueConstraint:
+            tableName: departments
+            columnNames: name
+            constraintName: uk_departments_name
+      rollback:
+        - dropTable:
+            tableName: departments
+
+  # Changeset 2: Crear tabla de empleados
+  - changeSet:
+      id: create-employees-table
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,create,employees
+      comment: "Crear tabla de empleados con relación a departamentos"
+      changes:
+        - createTable:
+            tableName: employees
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: employee_number
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: first_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: phone
+                  type: VARCHAR(20)
+              - column:
+                  name: hire_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: salary
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: department_id
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: position
+                  type: VARCHAR(100)
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValue: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValue: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValue: CURRENT_TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: employees
+            baseColumnNames: department_id
+            referencedTableName: departments
+            referencedColumnNames: id
+            constraintName: fk_employees_department
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+      rollback:
+        - dropTable:
+            tableName: employees
+
+  # Changeset 3: Crear índices para optimización
+  - changeSet:
+      id: create-performance-indexes
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,indexes,performance
+      comment: "Crear índices para optimizar consultas"
+      changes:
+        - createIndex:
+            tableName: employees
+            indexName: idx_employees_email
+            columns:
+              - column:
+                  name: email
+        - createIndex:
+            tableName: employees
+            indexName: idx_employees_department
+            columns:
+              - column:
+                  name: department_id
+        - createIndex:
+            tableName: employees
+            indexName: idx_employees_hire_date
+            columns:
+              - column:
+                  name: hire_date
+        - createIndex:
+            tableName: employees
+            indexName: idx_employees_salary
+            columns:
+              - column:
+                  name: salary
+        - createIndex:
+            tableName: departments
+            indexName: idx_departments_manager
+            columns:
+              - column:
+                  name: manager_id
+      rollback:
+        - dropIndex:
+            indexName: idx_employees_email
+        - dropIndex:
+            indexName: idx_employees_department
+        - dropIndex:
+            indexName: idx_employees_hire_date
+        - dropIndex:
+            indexName: idx_employees_salary
+        - dropIndex:
+            indexName: idx_departments_manager
+
+  # Changeset 4: Insertar datos iniciales de departamentos
+  - changeSet:
+      id: insert-initial-departments
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,insert,departments,data
+      comment: "Insertar departamentos iniciales"
+      changes:
+        - insert:
+            tableName: departments
+            columns:
+              - column:
+                  name: name
+                  value: "Recursos Humanos"
+              - column:
+                  name: description
+                  value: "Departamento encargado de la gestión del personal"
+              - column:
+                  name: budget
+                  value: 250000.00
+              - column:
+                  name: location
+                  value: "Piso 3, Oficina 301"
+        - insert:
+            tableName: departments
+            columns:
+              - column:
+                  name: name
+                  value: "Tecnología"
+              - column:
+                  name: description
+                  value: "Departamento de desarrollo y sistemas"
+              - column:
+                  name: budget
+                  value: 500000.00
+              - column:
+                  name: location
+                  value: "Piso 2, Oficina 201"
+        - insert:
+            tableName: departments
+            columns:
+              - column:
+                  name: name
+                  value: "Finanzas"
+              - column:
+                  name: description
+                  value: "Departamento financiero y contable"
+              - column:
+                  name: budget
+                  value: 300000.00
+              - column:
+                  name: location
+                  value: "Piso 4, Oficina 401"
+        - insert:
+            tableName: departments
+            columns:
+              - column:
+                  name: name
+                  value: "Marketing"
+              - column:
+                  name: description
+                  value: "Departamento de marketing y ventas"
+              - column:
+                  name: budget
+                  value: 200000.00
+              - column:
+                  name: location
+                  value: "Piso 1, Oficina 101"
+        - insert:
+            tableName: departments
+            columns:
+              - column:
+                  name: name
+                  value: "Operaciones"
+              - column:
+                  name: description
+                  value: "Departamento de operaciones y logística"
+              - column:
+                  name: budget
+                  value: 350000.00
+              - column:
+                  name: location
+                  value: "Piso 1, Oficina 102"
+      rollback:
+        - delete:
+            tableName: departments
+            where: "name IN ('Recursos Humanos', 'Tecnología', 'Finanzas', 'Marketing', 'Operaciones')"
+
+  # Changeset 5: Insertar empleados de ejemplo
+  - changeSet:
+      id: insert-sample-employees
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,insert,employees,data
+      comment: "Insertar empleados de ejemplo"
+      changes:
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: employee_number
+                  value: "EMP001"
+              - column:
+                  name: first_name
+                  value: "Juan"
+              - column:
+                  name: last_name
+                  value: "Pérez"
+              - column:
+                  name: email
+                  value: "juan.perez@tutorial.com"
+              - column:
+                  name: phone
+                  value: "+52-555-1234"
+              - column:
+                  name: hire_date
+                  value: "2023-01-15"
+              - column:
+                  name: salary
+                  value: 45000.00
+              - column:
+                  name: department_id
+                  value: 2
+              - column:
+                  name: position
+                  value: "Desarrollador Senior"
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: employee_number
+                  value: "EMP002"
+              - column:
+                  name: first_name
+                  value: "María"
+              - column:
+                  name: last_name
+                  value: "González"
+              - column:
+                  name: email
+                  value: "maria.gonzalez@tutorial.com"
+              - column:
+                  name: phone
+                  value: "+52-555-5678"
+              - column:
+                  name: hire_date
+                  value: "2023-02-01"
+              - column:
+                  name: salary
+                  value: 50000.00
+              - column:
+                  name: department_id
+                  value: 1
+              - column:
+                  name: position
+                  value: "Gerente de RRHH"
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: employee_number
+                  value: "EMP003"
+              - column:
+                  name: first_name
+                  value: "Carlos"
+              - column:
+                  name: last_name
+                  value: "Rodríguez"
+              - column:
+                  name: email
+                  value: "carlos.rodriguez@tutorial.com"
+              - column:
+                  name: phone
+                  value: "+52-555-9012"
+              - column:
+                  name: hire_date
+                  value: "2023-03-10"
+              - column:
+                  name: salary
+                  value: 42000.00
+              - column:
+                  name: department_id
+                  value: 3
+              - column:
+                  name: position
+                  value: "Contador"
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: employee_number
+                  value: "EMP004"
+              - column:
+                  name: first_name
+                  value: "Ana"
+              - column:
+                  name: last_name
+                  value: "Martínez"
+              - column:
+                  name: email
+                  value: "ana.martinez@tutorial.com"
+              - column:
+                  name: phone
+                  value: "+52-555-3456"
+              - column:
+                  name: hire_date
+                  value: "2023-04-05"
+              - column:
+                  name: salary
+                  value: 38000.00
+              - column:
+                  name: department_id
+                  value: 4
+              - column:
+                  name: position
+                  value: "Especialista en Marketing"
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: employee_number
+                  value: "EMP005"
+              - column:
+                  name: first_name
+                  value: "Roberto"
+              - column:
+                  name: last_name
+                  value: "López"
+              - column:
+                  name: email
+                  value: "roberto.lopez@tutorial.com"
+              - column:
+                  name: phone
+                  value: "+52-555-7890"
+              - column:
+                  name: hire_date
+                  value: "2023-05-20"
+              - column:
+                  name: salary
+                  value: 40000.00
+              - column:
+                  name: department_id
+                  value: 5
+              - column:
+                  name: position
+                  value: "Supervisor de Operaciones"
+      rollback:
+        - delete:
+            tableName: employees
+            where: "employee_number IN ('EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005')"
+
+  # Changeset 6: Actualizar salarios por departamento
+  - changeSet:
+      id: update-salaries-by-department
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,update,salaries
+      comment: "Actualizar salarios basado en departamento"
+      changes:
+        - update:
+            tableName: employees
+            columns:
+              - column:
+                  name: salary
+                  value: 47000.00
+            where: "department_id = 2 AND position LIKE '%Senior%'"
+        - update:
+            tableName: employees
+            columns:
+              - column:
+                  name: salary
+                  value: 52000.00
+            where: "department_id = 1 AND position LIKE '%Gerente%'"
+        - sql:
+            sql: |
+              -- Actualizar salarios con incremento del 5% para empleados con más de 6 meses
+              UPDATE employees 
+              SET salary = salary * 1.05,
+                  updated_at = CURRENT_TIMESTAMP
+              WHERE hire_date < CURRENT_DATE - INTERVAL '6 months';
+      rollback:
+        - sql:
+            sql: |
+              -- Revertir actualizaciones de salario
+              UPDATE employees SET salary = 45000.00 WHERE employee_number = 'EMP001';
+              UPDATE employees SET salary = 50000.00 WHERE employee_number = 'EMP002';
+              UPDATE employees SET salary = 42000.00 WHERE employee_number = 'EMP003';
+              UPDATE employees SET salary = 38000.00 WHERE employee_number = 'EMP004';
+              UPDATE employees SET salary = 40000.00 WHERE employee_number = 'EMP005';
+
+  # Changeset 7: Agregar columna de fecha de última evaluación
+  - changeSet:
+      id: add-last-evaluation-date
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,alter,evaluation
+      comment: "Agregar columna de fecha de última evaluación"
+      changes:
+        - addColumn:
+            tableName: employees
+            columns:
+              - column:
+                  name: last_evaluation_date
+                  type: DATE
+              - column:
+                  name: next_evaluation_date
+                  type: DATE
+              - column:
+                  name: performance_rating
+                  type: INTEGER
+                  constraints:
+                    checkConstraint: "performance_rating >= 1 AND performance_rating <= 5"
+        - sql:
+            sql: |
+              -- Establecer fechas de evaluación para empleados existentes
+              UPDATE employees 
+              SET last_evaluation_date = hire_date + INTERVAL '3 months',
+                  next_evaluation_date = hire_date + INTERVAL '15 months',
+                  performance_rating = 4
+              WHERE last_evaluation_date IS NULL;
+      rollback:
+        - dropColumn:
+            tableName: employees
+            columnName: last_evaluation_date
+        - dropColumn:
+            tableName: employees
+            columnName: next_evaluation_date
+        - dropColumn:
+            tableName: employees
+            columnName: performance_rating
+
+  # Changeset 8: Crear triggers para auditoría automática
+  - changeSet:
+      id: create-audit-triggers
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,triggers,audit
+      comment: "Crear triggers para auditoría automática"
+      changes:
+        - sql:
+            sql: |
+              -- Trigger para actualizar timestamp en employees
+              CREATE OR REPLACE FUNCTION update_employee_timestamp()
+              RETURNS TRIGGER AS $$
+              BEGIN
+                  NEW.updated_at = CURRENT_TIMESTAMP;
+                  RETURN NEW;
+              END;
+              $$ LANGUAGE plpgsql;
+              
+              CREATE TRIGGER employees_update_trigger
+                  BEFORE UPDATE ON employees
+                  FOR EACH ROW
+                  EXECUTE FUNCTION update_employee_timestamp();
+              
+              -- Trigger para actualizar timestamp en departments
+              CREATE OR REPLACE FUNCTION update_department_timestamp()
+              RETURNS TRIGGER AS $$
+              BEGIN
+                  NEW.updated_at = CURRENT_TIMESTAMP;
+                  RETURN NEW;
+              END;
+              $$ LANGUAGE plpgsql;
+              
+              CREATE TRIGGER departments_update_trigger
+                  BEFORE UPDATE ON departments
+                  FOR EACH ROW
+                  EXECUTE FUNCTION update_department_timestamp();
+      rollback:
+        - sql:
+            sql: |
+              DROP TRIGGER IF EXISTS employees_update_trigger ON employees;
+              DROP TRIGGER IF EXISTS departments_update_trigger ON departments;
+              DROP FUNCTION IF EXISTS update_employee_timestamp();
+              DROP FUNCTION IF EXISTS update_department_timestamp();
+
+  # Changeset 9: Crear vista de reporte de empleados
+  - changeSet:
+      id: create-employee-report-view
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,view,reporting
+      comment: "Crear vista para reportes de empleados"
+      changes:
+        - createView:
+            viewName: employee_report
+            selectQuery: |
+              SELECT 
+                e.employee_number,
+                e.first_name || ' ' || e.last_name as full_name,
+                e.email,
+                e.position,
+                d.name as department_name,
+                d.location as department_location,
+                e.salary,
+                e.hire_date,
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, e.hire_date)) as years_of_service,
+                e.performance_rating,
+                e.last_evaluation_date,
+                e.next_evaluation_date,
+                e.is_active
+              FROM employees e
+              JOIN departments d ON e.department_id = d.id
+              ORDER BY d.name, e.last_name, e.first_name
+      rollback:
+        - dropView:
+            viewName: employee_report
+
+  # Changeset 10: Registrar cambios en historial
+  - changeSet:
+      id: log-automation-changes
+      author: tutorial
+      context: dev,staging,prod
+      labels: automation,logging,complete
+      comment: "Registrar finalización de cambios de automatización"
+      changes:
+        - sql:
+            sql: |
+              -- Registrar la finalización de la categoría
+              SELECT log_change(
+                'AUTOMATION_COMPLETE',
+                'employees,departments',
+                'Automatización de cambios completada: ' ||
+                (SELECT COUNT(*) FROM employees) || ' empleados, ' ||
+                (SELECT COUNT(*) FROM departments) || ' departamentos creados',
+                'tutorial'
+              );
+              
+              -- Actualizar versión de la aplicación
+              UPDATE application_config 
+              SET config_value = '1.1.0',
+                  updated_by = 'tutorial',
+                  updated_at = CURRENT_TIMESTAMP
+              WHERE config_key = 'app_version';
+      rollback:
+        - sql:
+            sql: |
+              DELETE FROM change_history WHERE change_type = 'AUTOMATION_COMPLETE';
+              UPDATE application_config SET config_value = '1.0.0' WHERE config_key = 'app_version';

@@ -1,0 +1,259 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: tutorial
+      comment: "Crear tabla departamentos desde archivo SQL"
+      changes:
+        - sqlFile:
+            path: sql/initial-departments.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 2
+      author: tutorial
+      comment: "Crear tabla empleados"
+      changes:
+        - createTable:
+            tableName: employees
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: salary
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: department_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_emp_dept
+                    references: departments(id)
+              - column:
+                  name: hired_date
+                  type: date
+                  defaultValueComputed: CURRENT_DATE
+
+  - changeSet:
+      id: 3
+      author: tutorial
+      comment: "Insertar empleados iniciales"
+      changes:
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: first_name
+                  value: "Juan"
+              - column:
+                  name: last_name
+                  value: "Pérez"
+              - column:
+                  name: email
+                  value: "juan.perez@empresa.com"
+              - column:
+                  name: salary
+                  value: 45000.00
+              - column:
+                  name: department_id
+                  value: 1
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: first_name
+                  value: "María"
+              - column:
+                  name: last_name
+                  value: "García"
+              - column:
+                  name: email
+                  value: "maria.garcia@empresa.com"
+              - column:
+                  name: salary
+                  value: 52000.00
+              - column:
+                  name: department_id
+                  value: 2
+        - insert:
+            tableName: employees
+            columns:
+              - column:
+                  name: first_name
+                  value: "Carlos"
+              - column:
+                  name: last_name
+                  value: "López"
+              - column:
+                  name: email
+                  value: "carlos.lopez@empresa.com"
+              - column:
+                  name: salary
+                  value: 48000.00
+              - column:
+                  name: department_id
+                  value: 1
+
+  - changeSet:
+      id: 4
+      author: tutorial
+      comment: "Agregar columnas adicionales a empleados"
+      changes:
+        - addColumn:
+            tableName: employees
+            columns:
+              - column:
+                  name: phone
+                  type: varchar(20)
+              - column:
+                  name: status
+                  type: varchar(20)
+                  defaultValue: "ACTIVE"
+              - column:
+                  name: manager_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_emp_manager
+                    references: employees(id)
+
+  - changeSet:
+      id: 5
+      author: tutorial
+      comment: "Modificar tipo de columna phone"
+      changes:
+        - modifyDataType:
+            tableName: employees
+            columnName: phone
+            newDataType: varchar(30)
+
+  - changeSet:
+      id: 6
+      author: tutorial
+      comment: "Crear tabla de proyectos"
+      changes:
+        - createTable:
+            tableName: projects
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: start_date
+                  type: date
+              - column:
+                  name: end_date
+                  type: date
+              - column:
+                  name: budget
+                  type: decimal(15,2)
+              - column:
+                  name: department_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_proj_dept
+                    references: departments(id)
+
+  - changeSet:
+      id: 7
+      author: tutorial
+      comment: "Crear tabla de asignaciones empleado-proyecto"
+      changes:
+        - createTable:
+            tableName: employee_projects
+            columns:
+              - column:
+                  name: employee_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_ep_employee
+                    references: employees(id)
+              - column:
+                  name: project_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_ep_project
+                    references: projects(id)
+              - column:
+                  name: role
+                  type: varchar(50)
+              - column:
+                  name: assigned_date
+                  type: date
+                  defaultValueComputed: CURRENT_DATE
+        - addPrimaryKey:
+            tableName: employee_projects
+            columnNames: employee_id, project_id
+            constraintName: pk_employee_projects
+
+  - changeSet:
+      id: 8
+      author: tutorial
+      comment: "Insertar datos de proyectos"
+      changes:
+        - insert:
+            tableName: projects
+            columns:
+              - column:
+                  name: name
+                  value: "Sistema CRM"
+              - column:
+                  name: description
+                  value: "Desarrollo de sistema de gestión de clientes"
+              - column:
+                  name: budget
+                  value: 250000.00
+              - column:
+                  name: department_id
+                  value: 1
+        - insert:
+            tableName: projects
+            columns:
+              - column:
+                  name: name
+                  value: "Campaña Digital"
+              - column:
+                  name: description
+                  value: "Campaña de marketing digital Q1"
+              - column:
+                  name: budget
+                  value: 75000.00
+              - column:
+                  name: department_id
+                  value: 2

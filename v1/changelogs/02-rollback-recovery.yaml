@@ -1,0 +1,115 @@
+databaseChangeLog:
+  # =============================================================================
+  # CATEGORÍA 2: ROLLBACK Y RECUPERACIÓN
+  # Objetivo: Demostrar reversión de cambios y recuperación de datos
+  # =============================================================================
+
+  # Changeset 1: Simular error de constraint
+  - changeSet:
+      id: simulate-constraint-error
+      author: tutorial
+      context: dev,staging
+      labels: rollback,error,simulation
+      comment: "Simular violación de constraint para probar rollback"
+      failOnError: true
+      changes:
+        - sql:
+            sql: |
+              -- Insertar empleado con correo duplicado para provocar error
+              INSERT INTO employees (employee_number, first_name, last_name, email, hire_date, salary, department_id)
+              VALUES ('EMP_DUP', 'Error', 'Duplicate', 'juan.perez@tutorial.com', '2023-06-01', 30000.00, 2);
+      rollback:
+        - delete:
+            tableName: employees
+            where: "employee_number = 'EMP_DUP'"
+
+  # Changeset 2: Crear tabla de backup antes de eliminación
+  - changeSet:
+      id: create-backup-table
+      author: tutorial
+      context: dev,staging,prod
+      labels: rollback,backup
+      comment: "Crear tabla de backup para empleados inactivos"
+      changes:
+        - createTable:
+            tableName: employees_backup
+            columns:
+              - column:
+                  name: id
+                  type: INTEGER
+              - column:
+                  name: employee_number
+                  type: VARCHAR(20)
+              - column:
+                  name: first_name
+                  type: VARCHAR(50)
+              - column:
+                  name: last_name
+                  type: VARCHAR(50)
+              - column:
+                  name: email
+                  type: VARCHAR(150)
+              - column:
+                  name: hire_date
+                  type: DATE
+              - column:
+                  name: salary
+                  type: DECIMAL(10,2)
+              - column:
+                  name: department_id
+                  type: INTEGER
+              - column:
+                  name: position
+                  type: VARCHAR(100)
+              - column:
+                  name: archived_at
+                  type: TIMESTAMP
+                  defaultValue: CURRENT_TIMESTAMP
+      rollback:
+        - dropTable:
+            tableName: employees_backup
+
+  # Changeset 3: Archivar y borrar empleados inactivos
+  - changeSet:
+      id: archive-delete-inactive-employees
+      author: tutorial
+      context: dev,staging,prod
+      labels: rollback,delete,inactive
+      comment: "Archivar empleados inactivos y luego eliminarlos"
+      changes:
+        - sql:
+            sql: |
+              -- Copiar empleados inactivos a backup
+              INSERT INTO employees_backup (id, employee_number, first_name, last_name, email, hire_date, salary, department_id, position)
+              SELECT id, employee_number, first_name, last_name, email, hire_date, salary, department_id, position
+              FROM employees
+              WHERE is_active = false;
+              
+              -- Eliminar empleados inactivos
+              DELETE FROM employees WHERE is_active = false;
+      rollback:
+        - sql:
+            sql: |
+              -- Restaurar empleados desde backup
+              INSERT INTO employees (id, employee_number, first_name, last_name, email, hire_date, salary, department_id, position, is_active, created_at, updated_at)
+              SELECT id, employee_number, first_name, last_name, email, hire_date, salary, department_id, position, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM employees_backup;
+              
+              -- Limpiar backup restaurado
+              DELETE FROM employees_backup;
+
+  # Changeset 4: Registrar rollback testing
+  - changeSet:
+      id: log-rollback-tests
+      author: tutorial
+      context: dev,staging,prod
+      labels: rollback,logging
+      comment: "Registrar finalización de pruebas de rollback"
+      changes:
+        - sql:
+            sql: |
+              SELECT log_change('ROLLBACK_TESTS', 'employees', 'Pruebas de rollback completadas', 'tutorial');
+      rollback:
+        - delete:
+            tableName: change_history
+            where: "change_type = 'ROLLBACK_TESTS'"

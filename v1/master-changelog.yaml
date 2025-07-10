@@ -1,0 +1,92 @@
+databaseChangeLog:
+  # Incluir script de configuración inicial
+  - include:
+      file: sql/01_initial_setup.sql
+      relativeToChangelogFile: true
+  
+  # Categoría 1: Automatización de Cambios
+  - include:
+      file: changelogs/01_automation_changes.yaml
+      relativeToChangelogFile: true
+      context: dev,staging,prod
+      labels: automation,altas,modificaciones
+  
+  # Categoría 2: Rollback y Recuperación
+  - include:
+      file: changelogs/02_rollback_recovery.yaml
+      relativeToChangelogFile: true
+      context: dev,staging,prod
+      labels: rollback,recovery,bajas
+  
+  # Categoría 3: Coordinación y Sincronización
+  - include:
+      file: changelogs/03_coordination_sync.yaml
+      relativeToChangelogFile: true
+      context: dev,staging,prod
+      labels: sync,coordination,monitoring
+  
+  # Categoría 4: Trazabilidad y Auditoría
+  - include:
+      file: changelogs/04_traceability_audit.yaml
+      relativeToChangelogFile: true
+      context: dev,staging,prod
+      labels: audit,traceability,logging
+  
+  # Categoría 5: Políticas y Controles
+  - include:
+      file: changelogs/05_policies_controls.yaml
+      relativeToChangelogFile: true
+      context: dev,staging,prod
+      labels: policies,controls,security
+  
+  # Changeset de validación final
+  - changeSet:
+      id: final-validation
+      author: system
+      context: dev,staging,prod
+      labels: validation,final
+      comment: "Validación final de la implementación del tutorial"
+      changes:
+        - sql:
+            sql: |
+              -- Crear vista de resumen del tutorial
+              CREATE OR REPLACE VIEW tutorial_summary AS
+              SELECT 
+                'Tutorial Liquibase completado' as status,
+                current_timestamp as completion_time,
+                (SELECT COUNT(*) FROM employees) as total_employees,
+                (SELECT COUNT(*) FROM departments) as total_departments,
+                (SELECT COUNT(*) FROM audit_log) as total_audit_entries,
+                (SELECT COUNT(*) FROM sync_status) as total_sync_entries;
+              
+              -- Insertar log de finalización
+              INSERT INTO change_history (change_type, table_affected, description, executed_by)
+              VALUES ('TUTORIAL_COMPLETE', 'ALL', 'Tutorial de Liquibase completado exitosamente', 'system');
+      rollback:
+        - sql:
+            sql: |
+              DROP VIEW IF EXISTS tutorial_summary;
+              DELETE FROM change_history WHERE change_type = 'TUTORIAL_COMPLETE';
+  
+  # Changeset de limpieza para desarrollo
+  - changeSet:
+      id: dev-cleanup
+      author: system
+      context: dev
+      labels: cleanup,development
+      comment: "Limpieza de datos de desarrollo"
+      changes:
+        - sql:
+            sql: |
+              -- Limpiar datos de prueba solo en desarrollo
+              DELETE FROM employees WHERE name LIKE '%Test%';
+              DELETE FROM departments WHERE name LIKE '%Test%';
+              
+              -- Resetear secuencias
+              SELECT setval('employees_id_seq', (SELECT MAX(id) FROM employees));
+              SELECT setval('departments_id_seq', (SELECT MAX(id) FROM departments));
+      rollback:
+        - sql:
+            sql: |
+              -- No hacer rollback de limpieza en desarrollo
+              SELECT 'Rollback de limpieza no aplicado en desarrollo' as message;
