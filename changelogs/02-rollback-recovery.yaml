@@ -81,109 +81,107 @@ databaseChangeLog:
         - dropTable:
             tableName: temp_test_table
 
-	- changeSet:
-			id: 5
-			author: cristian
-			comment: "Crear procedimiento para archivar empleados"
-			changes:
-				- sql: |
-						CREATE OR REPLACE FUNCTION archive_employee(emp_id INT, reason VARCHAR(255))
-						RETURNS BOOLEAN AS $$
-						BEGIN
-							INSERT INTO deleted_employees 
-							(original_id, first_name, last_name, email, salary, department_id, deletion_reason)
-							SELECT id, first_name, last_name, email, salary, department_id, reason
-							FROM employees WHERE id = emp_id;
-							
-							DELETE FROM employee_projects WHERE employee_id = emp_id;
-							DELETE FROM employees WHERE id = emp_id;
-							
-							RETURN TRUE;
-						END;
-						$$ LANGUAGE plpgsql;
-			rollback: |
-				DROP FUNCTION IF EXISTS archive_employee(INT, VARCHAR(255));
+  - changeSet:
+      id: 5
+      author: cristian
+      comment: "Crear procedimiento para archivar empleados"
+      changes:
+        - sql: |
+            CREATE OR REPLACE FUNCTION archive_employee(emp_id INT, reason VARCHAR(255))
+            RETURNS BOOLEAN AS $$
+            BEGIN
+              INSERT INTO deleted_employees 
+              (original_id, first_name, last_name, email, salary, department_id, deletion_reason)
+              SELECT id, first_name, last_name, email, salary, department_id, reason
+              FROM employees WHERE id = emp_id;
+              
+              DELETE FROM employee_projects WHERE employee_id = emp_id;
+              DELETE FROM employees WHERE id = emp_id;
+              
+              RETURN TRUE;
+            END;
+            $$ LANGUAGE plpgsql;
+      rollback: |
+        DROP FUNCTION IF EXISTS archive_employee(INT, VARCHAR(255));
 
+  # - changeSet:
+  #     id: 6
+  #     author: cristian
+  #     comment: "Crear tabla de historial de cambios"
+  #     changes:
+  #       - createTable:
+  #           tableName: change_history
+  #           columns:
+  #             - column:
+  #                 name: id
+  #                 type: int
+  #                 autoIncrement: true
+  #                 constraints:
+  #                   primaryKey: true
+  #             - column:
+  #                 name: change_type
+  #                 type: varchar(50)
+  #                 constraints:
+  #                   nullable: false
+  #             - column:
+  #                 name: table_affected
+  #                 type: varchar(50)
+  #             - column:
+  #                 name: description
+  #                 type: text
+  #             - column:
+  #                 name: executed_by
+  #                 type: varchar(50)
+  #                 defaultValue: "system"
+  #             - column:
+  #                 name: executed_at
+  #                 type: timestamp
+  #                 defaultValueComputed: CURRENT_TIMESTAMP
+  #             - column:
+  #                 name: rollback_info
+  #                 type: jsonb
 
-#   - changeSet:
-#       id: 6
-#       author: cristian
-#       comment: "Crear tabla de historial de cambios"
-#       changes:
-#         - createTable:
-#             tableName: change_history
-#             columns:
-#               - column:
-#                   name: id
-#                   type: int
-#                   autoIncrement: true
-#                   constraints:
-#                     primaryKey: true
-#               - column:
-#                   name: change_type
-#                   type: varchar(50)
-#                   constraints:
-#                     nullable: false
-#               - column:
-#                   name: table_affected
-#                   type: varchar(50)
-#               - column:
-#                   name: description
-#                   type: text
-#               - column:
-#                   name: executed_by
-#                   type: varchar(50)
-#                   defaultValue: "system"
-#               - column:
-#                   name: executed_at
-#                   type: timestamp
-#                   defaultValueComputed: CURRENT_TIMESTAMP
-#               - column:
-#                   name: rollback_info
-#                   type: jsonb
+  - changeSet:
+      id: 7
+      author: cristian
+      comment: "Eliminar tabla projects con backup completo"
+      changes:
+        - sql: "CREATE TABLE projects_backup AS SELECT * FROM projects;"
+        - sql: "CREATE TABLE employee_projects_backup AS SELECT * FROM employee_projects;"
+        - dropTable:
+            tableName: employee_projects
+        - dropTable:
+            tableName: projects
+      rollback:
+        - sql: "CREATE TABLE projects AS SELECT * FROM projects_backup;"
+        - sql: "CREATE TABLE employee_projects AS SELECT * FROM employee_projects_backup;"
+        - sql: "ALTER TABLE projects ADD CONSTRAINT pk_projects PRIMARY KEY (id);"
+        - sql: "ALTER TABLE employee_projects ADD CONSTRAINT pk_employee_projects PRIMARY KEY (employee_id, project_id);"
+        - sql: "ALTER TABLE projects ADD CONSTRAINT fk_proj_dept FOREIGN KEY (department_id) REFERENCES departments(id);"
+        - sql: "ALTER TABLE employee_projects ADD CONSTRAINT fk_ep_employee FOREIGN KEY (employee_id) REFERENCES employees(id);"
+        - sql: "ALTER TABLE employee_projects ADD CONSTRAINT fk_ep_project FOREIGN KEY (project_id) REFERENCES projects(id);"
+        - dropTable:
+            tableName: projects_backup
+        - dropTable:
+            tableName: employee_projects_backup
 
-	- changeSet:
-			id: 7
-			author: cristian
-			comment: "Eliminar tabla projects con backup completo"
-			changes:
-				- sql: "CREATE TABLE projects_backup AS SELECT * FROM projects;"
-				- sql: "CREATE TABLE employee_projects_backup AS SELECT * FROM employee_projects;"
-				- dropTable:
-						tableName: employee_projects
-				- dropTable:
-						tableName: projects
-			rollback:
-				- sql: "CREATE TABLE projects AS SELECT * FROM projects_backup;"
-				- sql: "CREATE TABLE employee_projects AS SELECT * FROM employee_projects_backup;"
-				- sql: "ALTER TABLE projects ADD CONSTRAINT pk_projects PRIMARY KEY (id);"
-				- sql: "ALTER TABLE employee_projects ADD CONSTRAINT pk_employee_projects PRIMARY KEY (employee_id, project_id);"
-				- sql: "ALTER TABLE projects ADD CONSTRAINT fk_proj_dept FOREIGN KEY (department_id) REFERENCES departments(id);"
-				- sql: "ALTER TABLE employee_projects ADD CONSTRAINT fk_ep_employee FOREIGN KEY (employee_id) REFERENCES employees(id);"
-				- sql: "ALTER TABLE employee_projects ADD CONSTRAINT fk_ep_project FOREIGN KEY (project_id) REFERENCES projects(id);"
-				- dropTable:
-						tableName: projects_backup
-				- dropTable:
-						tableName: employee_projects_backup
-
-
-#   - changeSet:
-#       id: 8
-#       author: cristian
-#       comment: "Registro de cambio en historial"
-#       changes:
-#         - insert:
-            tableName: change_history
-            columns:
-              - column:
-                  name: change_type
-                  value: "ROLLBACK_TESTS"
-              - column:
-                  name: table_affected
-                  value: "projects, employee_projects"
-              - column:
-                  name: description
-                  value: "Pruebas de rollback completadas exitosamente"
-              - column:
-                  name: rollback_info
-                  value: '{"can_rollback": true, "backup_tables": ["projects_backup", "employee_projects_backup"]}'
+  # - changeSet:
+  #     id: 8
+  #     author: cristian
+  #     comment: "Registro de cambio en historial"
+  #     changes:
+  #       - insert:
+  #           tableName: change_history
+  #           columns:
+  #             - column:
+  #                 name: change_type
+  #                 value: "ROLLBACK_TESTS"
+  #             - column:
+  #                 name: table_affected
+  #                 value: "projects, employee_projects"
+  #             - column:
+  #                 name: description
+  #                 value: "Pruebas de rollback completadas exitosamente"
+  #             - column:
+  #                 name: rollback_info
+  #                 value: '{"can_rollback": true, "backup_tables": ["projects_backup", "employee_projects_backup"]}'
