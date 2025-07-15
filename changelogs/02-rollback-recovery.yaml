@@ -1,37 +1,42 @@
 databaseChangeLog:
-  # - changeSet:
-  #     id: 22
-  #     author: cristian
-  #     comment: "Crear tabla de backup para empleados eliminados"
-  #     changes:
-  #       - createTable:
-  #           tableName: deleted_employees
-  #           columns:
-  #             - column:
-  #                 name: original_id
-  #                 type: int
-  #             - column:
-  #                 name: first_name
-  #                 type: varchar(50)
-  #             - column:
-  #                 name: last_name
-  #                 type: varchar(50)
-  #             - column:
-  #                 name: email
-  #                 type: varchar(100)
-  #             - column:
-  #                 name: salary
-  #                 type: decimal(10,2)
-  #             - column:
-  #                 name: department_id
-  #                 type: int
-  #             - column:
-  #                 name: deletion_date
-  #                 type: timestamp
-  #                 defaultValueComputed: CURRENT_TIMESTAMP
-  #             - column:
-  #                 name: deletion_reason
-  #                 type: varchar(255)
+  - changeSet:
+      id: 22
+      author: cristian
+      comment: "Crear tabla de backup para empleados eliminados"
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: deleted_employees
+      changes:
+        - createTable:
+            tableName: deleted_employees
+            columns:
+              - column:
+                  name: original_id
+                  type: int
+              - column:
+                  name: first_name
+                  type: varchar(50)
+              - column:
+                  name: last_name
+                  type: varchar(50)
+              - column:
+                  name: email
+                  type: varchar(100)
+              - column:
+                  name: salary
+                  type: decimal(10,2)
+              - column:
+                  name: department_id
+                  type: int
+              - column:
+                  name: deletion_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: deletion_reason
+                  type: varchar(255)
 
   - changeSet:
       id: 23
@@ -69,6 +74,11 @@ databaseChangeLog:
       id: 25
       author: cristian
       comment: "Crear tabla temporal para pruebas de rollback"
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: temp_test_table
       changes:
         - createTable:
             tableName: temp_test_table
@@ -90,6 +100,12 @@ databaseChangeLog:
       id: 26
       author: cristian
       comment: "Crear procedimiento para archivar empleados"
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - sqlCheck:
+                expectedResult: "0"
+                sql: "SELECT COUNT(*) FROM information_schema.routines WHERE routine_name = 'archive_employee';"
       changes:
         - sql: |
             CREATE OR REPLACE FUNCTION archive_employee(emp_id INT, reason VARCHAR(255))
@@ -113,6 +129,11 @@ databaseChangeLog:
       id: 27
       author: cristian
       comment: "Crear tabla de historial de cambios"
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: change_history
       changes:
         - createTable:
             tableName: change_history
@@ -150,6 +171,12 @@ databaseChangeLog:
       id: 28
       author: cristian
       comment: "Eliminar tabla projects con backup completo"
+      preConditions:
+        - onFail: CONTINUE
+        - tableExists:
+            tableName: projects
+        - tableExists:
+            tableName: employee_projects
       changes:
         - sql: "CREATE TABLE projects_backup AS SELECT * FROM projects;"
         - sql: "CREATE TABLE employee_projects_backup AS SELECT * FROM employee_projects;"
@@ -174,6 +201,10 @@ databaseChangeLog:
       id: 29
       author: cristian
       comment: "Registro de cambio en historial"
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: change_history
       changes:
         - insert:
             tableName: change_history
