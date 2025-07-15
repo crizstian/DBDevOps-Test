@@ -49,6 +49,7 @@ databaseChangeLog:
       author: cristian
       comment: "Eliminar columna phone temporalmente (para probar rollback)"
       preConditions:
+        - onFail: MARK_RAN
         - columnExists:
             tableName: employees
             columnName: phone
