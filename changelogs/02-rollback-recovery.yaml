@@ -1,37 +1,37 @@
 databaseChangeLog:
-  - changeSet:
-      id: 22
-      author: cristian
-      comment: "Crear tabla de backup para empleados eliminados"
-      changes:
-        - createTable:
-            tableName: deleted_employees
-            columns:
-              - column:
-                  name: original_id
-                  type: int
-              - column:
-                  name: first_name
-                  type: varchar(50)
-              - column:
-                  name: last_name
-                  type: varchar(50)
-              - column:
-                  name: email
-                  type: varchar(100)
-              - column:
-                  name: salary
-                  type: decimal(10,2)
-              - column:
-                  name: department_id
-                  type: int
-              - column:
-                  name: deletion_date
-                  type: timestamp
-                  defaultValueComputed: CURRENT_TIMESTAMP
-              - column:
-                  name: deletion_reason
-                  type: varchar(255)
+  # - changeSet:
+  #     id: 22
+  #     author: cristian
+  #     comment: "Crear tabla de backup para empleados eliminados"
+  #     changes:
+  #       - createTable:
+  #           tableName: deleted_employees
+  #           columns:
+  #             - column:
+  #                 name: original_id
+  #                 type: int
+  #             - column:
+  #                 name: first_name
+  #                 type: varchar(50)
+  #             - column:
+  #                 name: last_name
+  #                 type: varchar(50)
+  #             - column:
+  #                 name: email
+  #                 type: varchar(100)
+  #             - column:
+  #                 name: salary
+  #                 type: decimal(10,2)
+  #             - column:
+  #                 name: department_id
+  #                 type: int
+  #             - column:
+  #                 name: deletion_date
+  #                 type: timestamp
+  #                 defaultValueComputed: CURRENT_TIMESTAMP
+  #             - column:
+  #                 name: deletion_reason
+  #                 type: varchar(255)
 
   - changeSet:
       id: 23
