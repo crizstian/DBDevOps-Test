@@ -48,6 +48,10 @@ databaseChangeLog:
       id: 24
       author: cristian
       comment: "Eliminar columna phone temporalmente (para probar rollback)"
+      preConditions:
+        - columnExists:
+            tableName: employees
+            columnName: phone
       changes:
         - dropColumn:
             tableName: employees
