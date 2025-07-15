@@ -221,3 +221,7 @@ databaseChangeLog:
               - column:
                   name: rollback_info
                   value: '{"can_rollback": true, "backup_tables": ["projects_backup", "employee_projects_backup"]}'
+      rollback:
+        - delete:
+            tableName: change_history
+            where: change_type = 'ROLLBACK_TESTS' and table_affected = 'projects, employee_projects'
