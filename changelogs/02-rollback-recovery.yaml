@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 12
+      id: 22
       author: cristian
       comment: "Crear tabla de backup para empleados eliminados"
       changes:
@@ -34,7 +34,7 @@ databaseChangeLog:
                   type: varchar(255)
 
   - changeSet:
-      id: 13
+      id: 23
       author: cristian
       comment: "Aumentar salarios del departamento de desarrollo con rollback"
       changes:
@@ -45,7 +45,7 @@ databaseChangeLog:
             sql: "UPDATE employees SET salary = salary / 1.10 WHERE department_id = 1;"
 
   - changeSet:
-      id: 14
+      id: 24
       author: cristian
       comment: "Eliminar columna phone temporalmente (para probar rollback)"
       changes:
@@ -61,7 +61,7 @@ databaseChangeLog:
                   type: varchar(30)
 
   - changeSet:
-      id: 15
+      id: 25
       author: cristian
       comment: "Crear tabla temporal para pruebas de rollback"
       changes:
