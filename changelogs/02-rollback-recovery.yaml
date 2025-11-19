@@ -225,3 +225,58 @@ databaseChangeLog:
         - delete:
             tableName: change_history
             where: change_type = 'ROLLBACK_TESTS' and table_affected = 'projects, employee_projects'
+
+
+  - changeSet:
+      id: 30
+      author: cristian
+      comment: "Crear tabla demo_log para registrar eventos del sistema"
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: demo_log
+      changes:
+        - createTable:
+            tableName: demo_log
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: int
+              - column:
+                  name: action
+                  type: varchar(255)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: details
+                  type: clob
+      rollback:
+        - dropTable:
+            tableName: demo_log
+
+  - changeSet:
+      id: 31
+      author: cristian
+      comment: "Renombrar tabla audit_log a demo_log si existe previamente"
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: audit_log
+      changes:
+        - renameTable:
+            oldTableName: audit_log
+            newTableName: demo_log
+      rollback:
+        - renameTable:
+            oldTableName: demo_log
+            newTableName: audit_log
+
