@@ -171,3 +171,429 @@ databaseChangeLog:
         - delete:
             tableName: shopping_cart
             where: user_id = 1001 AND product_id = 5004
+
+databaseChangeLog:
+  - changeSet:
+      id: 1700412241-1
+      author: cristian.ramirez@harness.io
+      comment: Create AUTHORS table
+      labels: bookshelf
+      changes:
+        - createTable:
+            tableName: AUTHORS
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: biography
+                  type: TEXT
+              - column:
+                  name: birth_date
+                  type: DATE
+              - column:
+                  name: nationality
+                  type: VARCHAR(100)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: AUTHORS
+
+  - changeSet:
+      id: 1700412241-2
+      author: cristian.ramirez@harness.io
+      comment: Create BOOKS table
+      labels: bookshelf
+      changes:
+        - createTable:
+            tableName: BOOKS
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: isbn
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: price
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: publication_date
+                  type: DATE
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: author_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_books_author
+                    references: AUTHORS(id)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: BOOKS
+
+  - changeSet:
+      id: 1700412241-3
+      author: cristian.ramirez@harness.io
+      comment: Add index on BOOKS.author_id
+      labels: bookshelf
+      changes:
+        - createIndex:
+            indexName: idx_books_author_id
+            tableName: BOOKS
+            columns:
+              - column:
+                  name: author_id
+      rollback:
+        - dropIndex:
+            indexName: idx_books_author_id
+            tableName: BOOKS
+
+  - changeSet:
+      id: 1700412241-4
+      author: cristian.ramirez@harness.io
+      comment: Insert sample authors
+      labels: bookshelf
+      changes:
+        - insert:
+            tableName: AUTHORS
+            columns:
+              - column:
+                  name: name
+                  value: "J.K. Rowling"
+              - column:
+                  name: biography
+                  value: "British author best known for the Harry Potter series."
+              - column:
+                  name: birth_date
+                  value: "1965-07-31"
+              - column:
+                  name: nationality
+                  value: "British"
+        - insert:
+            tableName: AUTHORS
+            columns:
+              - column:
+                  name: name
+                  value: "George R.R. Martin"
+              - column:
+                  name: biography
+                  value: "American novelist and short story writer, best known for A Song of Ice and Fire."
+              - column:
+                  name: birth_date
+                  value: "1948-09-20"
+              - column:
+                  name: nationality
+                  value: "American"
+        - insert:
+            tableName: AUTHORS
+            columns:
+              - column:
+                  name: name
+                  value: "Jane Austen"
+              - column:
+                  name: biography
+                  value: "English novelist known primarily for her six major novels."
+              - column:
+                  name: birth_date
+                  value: "1775-12-16"
+              - column:
+                  name: nationality
+                  value: "British"
+      rollback:
+        - delete:
+            tableName: AUTHORS
+            where: "name IN ('J.K. Rowling', 'George R.R. Martin', 'Jane Austen')"
+
+  - changeSet:
+      id: 1700412241-5
+      author: cristian.ramirez@harness.io
+      comment: Insert sample books
+      labels: bookshelf
+      changes:
+        - insert:
+            tableName: BOOKS
+            columns:
+              - column:
+                  name: title
+                  value: "Harry Potter and the Philosopher's Stone"
+              - column:
+                  name: isbn
+                  value: "9780747532743"
+              - column:
+                  name: price
+                  value: "19.99"
+              - column:
+                  name: publication_date
+                  value: "1997-06-26"
+              - column:
+                  name: description
+                  value: "The first novel in the Harry Potter series."
+              - column:
+                  name: author_id
+                  valueComputed: "(SELECT id FROM AUTHORS WHERE name = 'J.K. Rowling')"
+        - insert:
+            tableName: BOOKS
+            columns:
+              - column:
+                  name: title
+                  value: "A Game of Thrones"
+              - column:
+                  name: isbn
+                  value: "9780553103540"
+              - column:
+                  name: price
+                  value: "24.99"
+              - column:
+                  name: publication_date
+                  value: "1996-08-01"
+              - column:
+                  name: description
+                  value: "The first novel in A Song of Ice and Fire series."
+              - column:
+                  name: author_id
+                  valueComputed: "(SELECT id FROM AUTHORS WHERE name = 'George R.R. Martin')"
+        - insert:
+            tableName: BOOKS
+            columns:
+              - column:
+                  name: title
+                  value: "Pride and Prejudice"
+              - column:
+                  name: isbn
+                  value: "9780141439518"
+              - column:
+                  name: price
+                  value: "12.99"
+              - column:
+                  name: publication_date
+                  value: "1813-01-28"
+              - column:
+                  name: description
+                  value: "A romantic novel of manners."
+              - column:
+                  name: author_id
+                  valueComputed: "(SELECT id FROM AUTHORS WHERE name = 'Jane Austen')"
+      rollback:
+        - delete:
+            tableName: BOOKS
+            where: "title IN ('Harry Potter and the Philosopher''s Stone', 'A Game of Thrones', 'Pride and Prejudice')"
+
+databaseChangeLog:
+  - changeSet:
+      id: 1700412242-1
+      author: cristian.ramirez@harness.io
+      comment: Create PUBLISHERS table
+      labels: cart-shop-feature
+      changes:
+        - createTable:
+            tableName: PUBLISHERS
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: TEXT
+              - column:
+                  name: city
+                  type: VARCHAR(100)
+              - column:
+                  name: state
+                  type: VARCHAR(100)
+              - column:
+                  name: postal_code
+                  type: VARCHAR(20)
+              - column:
+                  name: country
+                  type: VARCHAR(100)
+              - column:
+                  name: phone
+                  type: VARCHAR(50)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: website
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: PUBLISHERS
+
+  - changeSet:
+      id: 1700412242-2
+      author: cristian.ramirez@harness.io
+      comment: Create INVENTORY table
+      labels: cart-shop-feature
+      changes:
+        - createTable:
+            tableName: INVENTORY
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: book_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_inventory_book
+                    references: BOOKS(id)
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warehouse_location
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: shelf_position
+                  type: VARCHAR(50)
+              - column:
+                  name: last_restock_date
+                  type: DATE
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: INVENTORY
+
+  - changeSet:
+      id: 1700412242-3
+      author: cristian.ramirez@harness.io
+      comment: Add publisher_id column to BOOKS table
+      labels: cart-shop-feature
+      changes:
+        - addColumn:
+            tableName: BOOKS
+            columns:
+              - column:
+                  name: publisher_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_books_publisher
+                    references: PUBLISHERS(id)
+      rollback:
+        - dropColumn:
+            tableName: BOOKS
+            columnName: publisher_id
+
+  - changeSet:
+      id: 1700412242-4
+      author: cristian.ramirez@harness.io
+      comment: Create index on BOOKS.publisher_id
+      labels: cart-shop-feature
+      changes:
+        - createIndex:
+            indexName: idx_books_publisher_id
+            tableName: BOOKS
+            columns:
+              - column:
+                  name: publisher_id
+      rollback:
+        - dropIndex:
+            indexName: idx_books_publisher_id
+            tableName: BOOKS
+
+  - changeSet:
+      id: 1700412242-5
+      author: cristian.ramirez@harness.io
+      comment: Create index on INVENTORY.book_id
+      labels: cart-shop-feature
+      changes:
+        - createIndex:
+            indexName: idx_inventory_book_id
+            tableName: INVENTORY
+            columns:
+              - column:
+                  name: book_id
+      rollback:
+        - dropIndex:
+            indexName: idx_inventory_book_id
+            tableName: INVENTORY
