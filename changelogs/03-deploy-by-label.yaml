@@ -3,7 +3,7 @@ databaseChangeLog:
       id: 1700412047-1
       author: cristian.ramirez@harness.io
       comment: Create shopping_cart table
-      labels: cart-shop-feature
+      context: cart-shop-feature
       changes:
         - createTable:
             tableName: shopping_cart
@@ -60,7 +60,7 @@ databaseChangeLog:
       id: 1700412047-2
       author: cristian.ramirez@harness.io
       comment: Insert sample data into shopping_cart table
-      labels: cart-shop-feature
+      context: cart-shop-feature
       changes:
         - insert:
             tableName: shopping_cart
@@ -89,7 +89,7 @@ databaseChangeLog:
       id: 1700412047-3
       author: cristian.ramirez@harness.io
       comment: Insert more sample data into shopping_cart table
-      labels: cart-shop-feature
+      context: cart-shop-feature
       changes:
         - insert:
             tableName: shopping_cart
@@ -118,7 +118,7 @@ databaseChangeLog:
       id: 1700412047-4
       author: cristian.ramirez@harness.io
       comment: Insert additional sample data into shopping_cart table
-      labels: cart-shop-feature
+      context: cart-shop-feature
       changes:
         - insert:
             tableName: shopping_cart
@@ -147,7 +147,7 @@ databaseChangeLog:
       id: 1700412047-5
       author: cristian.ramirez@harness.io
       comment: Insert final sample data into shopping_cart table
-      labels: cart-shop-feature
+      context: cart-shop-feature
       changes:
         - insert:
             tableName: shopping_cart
