@@ -5,9 +5,9 @@ databaseChangeLog:
   - include:
       file: changelogs/02-rollback-recovery.yaml
       relativeToChangelogFile: true
-#   - include:
-#       file: changelogs/03-coordination-sync.yaml
-#       relativeToChangelogFile: true
+  - include:
+      file: changelogs/03-deploy-by-label.yaml
+      relativeToChangelogFile: true
 #   - include:
 #       file: changelogs/04-traceability-audit.yaml
 #       relativeToChangelogFile: true
